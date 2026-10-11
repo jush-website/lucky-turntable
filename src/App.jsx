@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, RotateCcw, X, Sparkles, MapPin, Search, Star, Navigation, ExternalLink, Crosshair, Map as MapIcon } from 'lucide-react';
+import { Plus, Trash2, RotateCcw, X, Sparkles, MapPin, Search, Star, Navigation, ExternalLink, Crosshair, Map as MapIcon, Ticket } from 'lucide-react';
+import ScratchFormula from './ScratchFormula';
 
 const COLORS = [
   '#FF6B6B', // Red
@@ -28,7 +29,7 @@ const DecisionWheel = () => {
   const [showWinnerModal, setShowWinnerModal] = useState(false);
 
   // --- New State for Maps/Search ---
-  const [activeTab, setActiveTab] = useState('manual'); // 'manual' or 'search'
+  const [activeTab, setActiveTab] = useState('manual'); // 'manual', 'search' or 'scratch'
   const [searchKeyword, setSearchKeyword] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
@@ -49,6 +50,18 @@ const DecisionWheel = () => {
       ...prev,
       { id: Date.now() + Math.random(), text: text }
     ]);
+  };
+
+  // Add several items at once (used by scratch formula)
+  const addItemsToWheel = (texts) => {
+    setItems(prev => [
+      ...prev,
+      ...texts.map(text => ({ id: Date.now() + Math.random(), text }))
+    ]);
+  };
+
+  const replaceWheelItems = (texts) => {
+    setItems(texts.map(text => ({ id: Date.now() + Math.random(), text })));
   };
 
   // Remove item
@@ -316,6 +329,14 @@ const DecisionWheel = () => {
             >
               <MapIcon size={16} /> GPS 搜尋附近
             </button>
+            <button 
+              onClick={() => setActiveTab('scratch')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                activeTab === 'scratch' ? 'bg-indigo-100 text-indigo-700 shadow-sm' : 'text-slate-500 hover:bg-slate-50'
+              }`}
+            >
+              <Ticket size={16} /> 刮刮樂公式
+            </button>
           </div>
 
           {/* Layout Fix: Improved flex behavior. On mobile (default), it stacks. On md (tablet/desktop), it attempts row. */}
@@ -349,6 +370,15 @@ const DecisionWheel = () => {
                     在此處快速輸入自訂選項
                   </div>
                 </div>
+              )}
+
+              {/* TAB 3: Scratch Ticket Formula */}
+              {activeTab === 'scratch' && (
+                <ScratchFormula
+                  onAddToWheel={addItemsToWheel}
+                  onReplaceWheel={replaceWheelItems}
+                  disabled={isSpinning}
+                />
               )}
 
               {/* TAB 2: Real Map Search */}
